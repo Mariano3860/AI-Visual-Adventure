@@ -1,3 +1,4 @@
+# Background.py
 class Background:
     def __init__(self, description, max_width, max_height):
         self.description = description

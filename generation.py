@@ -1,3 +1,4 @@
+# generation.py
 from Character import Character
 from Background import Background
 

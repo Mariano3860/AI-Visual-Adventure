@@ -1,3 +1,4 @@
+# Character.py
 class Character:
     def __init__(self, name, background_description):
         self.name = name

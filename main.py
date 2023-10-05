@@ -1,23 +1,24 @@
 from generation import create_characters, create_background
-from ai_helper import callAI
+from ai_helper import callAI, extract_list, generate_prompt
 
 if __name__ == '__main__':
-    story = "game of thrones"
-    numCharacters = 15
-    prompt = "One answer for one instruction.\n" +\
-             "Instruction: Write a list with exactly " + str(numCharacters) +\
-             " names. The list must have this format: " + \
-             "'[name1,name2,name3,...,nameX]'\n" + \
-             "The names should be based on this story: " + story + ".\n" \
-             "Answer:"
-
+    story = "juego de tronos"
+    max_items = 20
+    item_type = "names"
+    prompt = generate_prompt(item_type, max_items, story)
     result = callAI(prompt)
 
     if result:
-        print(result)
+        print("result: " + result)
+        extracted_result = extract_list(result, max_items)
+        if extracted_result and len(extracted_result) > 0:
+            print(extracted_result)
+            print('List length: ' + str(len(extracted_result)))
+        else:
+            print("Error extracting list: " + result)
+            print(extracted_result)
     else:
         print("AI request failed.")
-
 
 # OnError: repeat 3 times, if not, change promp, if not, message error
 # Ask for a list of names, filter uniques, ask for more names if needed given the already generated list.
@@ -33,8 +34,3 @@ if __name__ == '__main__':
 # Ask an IA for validation of the image created, use info inside classes to check presence, position, quality.
 # Generate percentages of compliance/efficiency, in the future use them to feedback the AIs.
 # Store information in logs in order to rebuild process.
-
-
-
-
-
