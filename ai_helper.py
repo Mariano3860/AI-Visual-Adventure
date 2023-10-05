@@ -109,7 +109,7 @@ def extract_list(input_text, max_items):
         return None
 
     # Replace unwanted characters
-    input_text = input_text.replace("[and ", "[").replace(".", "").replace("\"", "").replace("\'", "").replace(";", ",").strip()
+    input_text = input_text.replace("[and ", "[").strip(".").strip("\"").strip("\'").replace(";", ",").replace("  ", "")
 
     # Define a regular expression pattern to find list-like structures
     pattern = r'[\[\(](.*?)[\]\)]'
@@ -147,6 +147,7 @@ def extract_list(input_text, max_items):
 
 def extract_object_from_list(input_list, max_attributes=None):
     # Split the input string by semicolons to get pairs of name and attributes
+    input_list = input_list.replace("[", ",").replace("]", ",").strip("\'").strip("\"").replace("  ", " ")
     pairs = input_list.split('; ')
     if not pairs or len(pairs) < 1:
         print("Incorrect format of input object validate_and_parse_list(): " + input_list)
