@@ -145,33 +145,42 @@ def extract_list(input_text, max_items):
     return None
 
 
-def create_object_from_list(_list):
+def create_object_from_list(input_list):
+    # Remove unwanted characters and spaces
+    input_list = input_list.replace(".", "").strip()
+
+    # Find the first '[' and last ']'
+    start_index = input_list.find("[")
+    end_index = input_list.rfind("]")
+
+    # Check if both '[' and ']' are found
+    if start_index == -1 or end_index == -1 or start_index >= end_index:
+        print("Incorrect format of input object validate_and_parse_list()")
+        return None
+
+    # Extract the content within square brackets
+    list_content = input_list[start_index + 1 : end_index]
+
+    # Split the list into individual items
+    items = list_content.split(", ")
+
     items_quality = {}
+    for item in items:
+        # Split each item into parts based on the first colon
+        parts = item.split(":", 1)
+        if len(parts) != 2:
+            return None  # Incorrect format, return None
 
-    # Replace unwanted characters
-    _list = _list.replace(".", "")
-    _list = _list.replace("[", "")
-    _list = _list.replace("]", "")
-    _list = _list.replace("/", "")
-    _list = _list.replace("\\", "")
-
-    _list = _list.split(', ')
-
-    for item in _list:
-        if not item:
-            continue  # Skip empty strings
-        parts = item.split(':', 1)  # Split only on the first colon
-        if len(parts) == 2:
-            first_quality = parts[0].strip()
-            second_quality = parts[1].strip()
-            items_quality[first_quality] = second_quality
+        first_quality = parts[0].strip()
+        second_quality = parts[1].strip()
+        items_quality[first_quality] = second_quality
 
     return items_quality
 
 
 def create_list_with_call_ai(item_type, max_items, story, prompt_type, retries=3):
     if retries <= 0:
-        print("Error creating list with ai, fail " + str(retries) + " times.\n")
+        print("Error creating list with create_list_with_call_ai(), fail " + str(retries) + " times.\n")
         return None
 
     prompt = generate_prompt_items(item_type, max_items, story, prompt_type)
@@ -184,9 +193,25 @@ def create_list_with_call_ai(item_type, max_items, story, prompt_type, retries=3
             return extracted_result
         else:
             # Retry with the next prompt type
-            print("Error creating list on " + str(retries) + " try.\n")
+            print("Error on one try creating list create_list_with_call_ai().\n")
             return create_list_with_call_ai(item_type, max_items, story, prompt_type + 1, retries - 1)
     else:
         return None
 
 
+def create_object_with_call_ai(item_type, list_names, story, prompt_type, retries=3):
+    if retries <= 0:
+        print("Error creating object with create_object_with_call_ai(), fail " + str(retries) + " times.\n")
+        return None
+
+    prompt = generate_prompt_items_with_list(item_type, list_names, story, prompt_type)
+    result = call_ai(prompt)
+
+    if result:
+        items_quality = create_object_from_list(result)
+        if len(items_quality) > 0:
+            return items_quality
+    else:
+        # Retry with the next prompt type
+        print("Error on one try creating object with create_object_with_call_ai().\n")
+        return create_object_with_call_ai(item_type, list_names, story, prompt_type + 1, retries - 1)

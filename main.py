@@ -1,7 +1,5 @@
 from Character import Character
-from generation import create_characters, create_background
-from ai_helper import call_ai, extract_list, generate_prompt_items, generate_prompt_items_with_list, \
-    create_object_from_list, create_list_with_call_ai
+from ai_helper import create_list_with_call_ai, create_object_with_call_ai
 
 if __name__ == '__main__':
     characters = []
@@ -14,20 +12,16 @@ if __name__ == '__main__':
         print(list_names)
         print('List length: ' + str(len(list_names)))
         characters = [Character(name) for name in list_names]
+
         item_type = "adjective"
-
-        prompt2 = generate_prompt_items_with_list(item_type, list_names, story, 2)
-        print("promp2: " + prompt2)
-        result2 = call_ai(prompt2)
-        print(result2)
-        object_result = create_object_from_list(result2)
-        print(object_result)
-
-        for character in characters:
-            if character.get_name() in object_result:
-                character.add_appearance_modifier(object_result[character.get_name()])
-        if len(characters[1].get_appearance_modifiers()) > 0:
-            print(characters[1].get_name() + ' ' + characters[1].get_appearance_modifiers()[0])
+        object_names_adjective = create_object_with_call_ai(item_type, list_names, story, 1)
+        if len(object_names_adjective) > 0:
+            print(object_names_adjective)
+            for character in characters:
+                if character.get_name() in object_names_adjective:
+                    character.add_appearance_modifier(object_names_adjective[character.get_name()])
+            if len(characters[1].get_appearance_modifiers()) > 0:
+                print(characters[1].get_name() + ' ' + characters[1].get_appearance_modifiers()[0])
 
 # OnError: repeat 3 times, if not, change promp, if not, message error
 # Ask for a list of names, filter uniques, ask for more names if needed given the already generated list.
