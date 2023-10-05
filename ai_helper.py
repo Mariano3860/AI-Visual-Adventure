@@ -104,12 +104,11 @@ def generate_prompt_items_with_list(item_type, item_list, story, num_type):
 def extract_list(input_text, max_items):
     # Check if "[" and "]" are present in the input text
     if "[" not in input_text or "]" not in input_text:
-        print("Error: The list format is incorrect.")
+        print("Error: The list format is incorrect: " + input_text)
         return None
 
     # Replace unwanted characters
-    input_text = input_text.replace("[and ", "[")
-    input_text = input_text.replace(".", "")
+    input_text = input_text.replace("[and ", "[").replace(".", "").replace("\"", "").replace("\'", "")
 
     # Define a regular expression pattern to find list-like structures
     pattern = r'[\[\(](.*?)[\]\)]'
@@ -139,13 +138,13 @@ def extract_list(input_text, max_items):
         # Cut the list to the specified max_items
         if len(unique_items) > max_items:
             unique_items = unique_items[:max_items]
+            return unique_items
 
-        return unique_items
-
+    print("Error: The list format is incorrect: " + input_text)
     return None
 
 
-def create_object_from_list(input_list):
+def extract_object_from_list(input_list):
     # Remove unwanted characters and spaces
     input_list = input_list.replace(".", "").strip()
 
@@ -155,7 +154,7 @@ def create_object_from_list(input_list):
 
     # Check if both '[' and ']' are found
     if start_index == -1 or end_index == -1 or start_index >= end_index:
-        print("Incorrect format of input object validate_and_parse_list()")
+        print("Incorrect format of input object validate_and_parse_list(): " + input_list)
         return None
 
     # Extract the content within square brackets
@@ -169,6 +168,7 @@ def create_object_from_list(input_list):
         # Split each item into parts based on the first colon
         parts = item.split(":", 1)
         if len(parts) != 2:
+            print("Incorrect format of input object validate_and_parse_list(): " + input_list)
             return None  # Incorrect format, return None
 
         first_quality = parts[0].strip()
@@ -188,15 +188,11 @@ def create_list_with_call_ai(item_type, max_items, story, prompt_type, retries=3
 
     if result:
         extracted_result = extract_list(result, max_items)
-
-        if extracted_result:
+        if extracted_result and len(extracted_result) > 0:
             return extracted_result
-        else:
-            # Retry with the next prompt type
-            print("Error on one try creating list create_list_with_call_ai().\n")
-            return create_list_with_call_ai(item_type, max_items, story, prompt_type + 1, retries - 1)
     else:
-        return None
+        # Retry with the next prompt type
+        return create_list_with_call_ai(item_type, max_items, story, prompt_type + 1, retries - 1)
 
 
 def create_object_with_call_ai(item_type, list_names, story, prompt_type, retries=3):
@@ -208,10 +204,9 @@ def create_object_with_call_ai(item_type, list_names, story, prompt_type, retrie
     result = call_ai(prompt)
 
     if result:
-        items_quality = create_object_from_list(result)
-        if len(items_quality) > 0:
+        items_quality = extract_object_from_list(result)
+        if items_quality and len(items_quality) > 0:
             return items_quality
     else:
         # Retry with the next prompt type
-        print("Error on one try creating object with create_object_with_call_ai().\n")
         return create_object_with_call_ai(item_type, list_names, story, prompt_type + 1, retries - 1)

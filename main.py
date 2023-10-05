@@ -4,18 +4,18 @@ from ai_helper import create_list_with_call_ai, create_object_with_call_ai
 if __name__ == '__main__':
     characters = []
     story = "juego de tronos"
-    max_items = 20
+    max_items = 15
     item_type = "names"
-    list_names = create_list_with_call_ai(item_type, max_items, story, 1)
+    list_names = create_list_with_call_ai(item_type, max_items, story, 1, 3)
 
-    if len(list_names) > 0:
+    if list_names and len(list_names) > 0:
         print(list_names)
         print('List length: ' + str(len(list_names)))
         characters = [Character(name) for name in list_names]
 
         item_type = "adjective"
-        object_names_adjective = create_object_with_call_ai(item_type, list_names, story, 1)
-        if len(object_names_adjective) > 0:
+        object_names_adjective = create_object_with_call_ai(item_type, list_names, story, 1, 3)
+        if object_names_adjective and len(object_names_adjective) > 0:
             print(object_names_adjective)
             for character in characters:
                 if character.get_name() in object_names_adjective:
