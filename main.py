@@ -1,5 +1,5 @@
 from Character import Character
-from ai_helper import create_list_with_call_ai, create_object_with_call_ai
+from ai_helper import create_list_with_call_ai, create_object_with_call_ai, extract_object_from_list
 
 if __name__ == '__main__':
     characters = []
@@ -26,6 +26,7 @@ if __name__ == '__main__':
                     qualities = object_names_adjective[character.get_name()]
                     if qualities:
                         print(f"{character.get_name()}: {', '.join(qualities)}")
+
 
 # OnError: repeat 3 times, if not, change promp, if not, message error
 # Ask for a list of names, filter uniques, ask for more names if needed given the already generated list.

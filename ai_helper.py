@@ -80,22 +80,22 @@ def generate_prompt_items(item_type, max_items, story, num_type):
 def generate_prompt_items_with_list(item_type, item_list, story, num_type):
     if num_type == 1:
         prompt = f"One answer for one instruction.\n" \
-                 f"Instruction: Create a list containing exactly {len(item_list)} {item_type} related to the story: '{story}'. " \
-                 f"For each item in the list, use the format: '[{item_list[0]}: {item_type}, {item_list[1]}: {item_type},..., {item_list[len(item_list) - 1]}: {item_type}]'. " \
+                 f"Instruction: Create a list containing one or two {item_type} for each item in the list, related to the story: '{story}'. " \
+                 f"For each item in the list, use the format: '{item_list[0]}: {item_type}1, {item_type}2; {item_list[1]}: {item_type};...; {item_list[len(item_list) - 1]}: {item_type}'. " \
                  f"Ensure that each {item_type} is inspired by the story.\n" \
                  f"Reference list: {item_list}\n" \
                  f"Answer:"
     elif num_type == 2:
         prompt = f"One answer for one instruction.\n" \
                  f"Instruction: Assemble a list comprising exactly {len(item_list)} {item_type}, each linked to the story of {story}. " \
-                 f"For each item in the list, adhere to the format: '[{item_list[0]}: {item_type}, {item_list[1]}: {item_type}, ..., {item_list[len(item_list) - 1]}: {item_type}]'. " \
+                 f"For each item in the list, adhere to the format: '{item_list[0]}: {item_type}; {item_list[1]}: {item_type}; ...; {item_list[len(item_list) - 1]}: {item_type}' " \
                  f"Ensure that each {item_type} is inspired by the story.\n" \
                  f"Reference list: {item_list}\n" \
                  f"Answer:"
     else:
         prompt = f"One answer for one instruction.\n" \
-                 f"Instruction: Assemble a list comprising exactly {len(item_list)} {item_type}, each linked to the story of {story}. " \
-                 f"For each item in the list, adhere to the format: '[{item_list[0]}: {item_type}, {item_list[1]}: {item_type}, ..., {item_list[len(item_list) - 1]}: {item_type}]'. " \
+                 f"Instruction: Assemble a list comprising exactly {item_type}, each linked to the story of {story}. " \
+                 f"For each item in the list, adhere to the format: '{item_list[0]}: {item_type}; {item_list[1]}: {item_type}; ...; {item_list[len(item_list) - 1]}: {item_type}' " \
                  f"Ensure that each {item_type} is inspired by the story.\n" \
                  f"Reference list: {item_list}\n" \
                  f"Answer:"
@@ -109,7 +109,7 @@ def extract_list(input_text, max_items):
         return None
 
     # Replace unwanted characters
-    input_text = input_text.replace("[and ", "[").replace(".", "").replace("\"", "").replace("\'", "")
+    input_text = input_text.replace("[and ", "[").replace(".", "").replace("\"", "").replace("\'", "").replace(";", ",").strip()
 
     # Define a regular expression pattern to find list-like structures
     pattern = r'[\[\(](.*?)[\]\)]'
@@ -145,50 +145,39 @@ def extract_list(input_text, max_items):
     return None
 
 
-def extract_object_from_list(input_list):
-    # Remove unwanted characters and spaces
-    input_list = input_list.replace(".", "").strip()
-
-    # Find the first '[' and last ']'
-    start_index = input_list.find("[")
-    end_index = input_list.rfind("]")
-
-    # Check if both '[' and ']' are found
-    if start_index == -1 or end_index == -1 or start_index >= end_index:
+def extract_object_from_list(input_list, max_attributes=None):
+    # Split the input string by semicolons to get pairs of name and attributes
+    pairs = input_list.split('; ')
+    if not pairs or len(pairs) < 1:
         print("Incorrect format of input object validate_and_parse_list(): " + input_list)
         return None
 
-    # Extract the content within square brackets
-    list_content = input_list[start_index + 1 : end_index]
+    # Initialize an empty dictionary to store the result
+    extracted_object = {}
 
-    # Split the list into individual items
-    items = list_content.split(", ")
+    # Iterate through the pairs and extract names and attributes
+    for pair in pairs:
+        # Split each pair by a colon to separate name and attributes
+        name, attributes_str = pair.split(': ')
+        # Split the attributes by commas and create a list
+        attributes = attributes_str.split(', ')
 
-    items_quality = {}
-    for item in items:
-        # Split each item into parts based on the first colon
-        parts = item.split(":", 1)
-        if len(parts) != 2:
-            print("Incorrect format of input object validate_and_parse_list(): " + input_list)
-            return None  # Incorrect format, return None
+        # Check if max_attributes is specified and limit the number of attributes
+        if max_attributes is not None:
+            attributes = attributes[:max_attributes]
 
-        first_quality = parts[0].strip()
-        second_quality = parts[1].strip()
+        # Remove attributes with more than 3 words
+        attributes = [attr for attr in attributes if len(attr.split()) <= 3]
 
-        # Check if the second quality contains multiple qualities separated by commas
-        if ',' in second_quality:
-            qualities_list = [qual.strip() for qual in second_quality.split(",")]
-            items_quality[first_quality] = qualities_list
-        else:
-            items_quality[first_quality] = [second_quality]
+        # Add the name and attributes to the result dictionary
+        extracted_object[name] = attributes
 
-    return items_quality
-
+    return extracted_object
 
 
 def create_list_with_call_ai(item_type, max_items, story, prompt_type, retries=3):
     if retries <= 0:
-        print("Error creating list with create_list_with_call_ai(), fail " + str(retries) + " times.\n")
+        print("Error creating list with create_list_with_call_ai()\n")
         return None
 
     prompt = generate_prompt_items(item_type, max_items, story, prompt_type)
@@ -198,14 +187,14 @@ def create_list_with_call_ai(item_type, max_items, story, prompt_type, retries=3
         extracted_result = extract_list(result, max_items)
         if extracted_result and len(extracted_result) > 0:
             return extracted_result
-    else:
-        # Retry with the next prompt type
-        return create_list_with_call_ai(item_type, max_items, story, prompt_type + 1, retries - 1)
+
+    # Retry with the next prompt type
+    return create_list_with_call_ai(item_type, max_items, story, prompt_type + 1, retries - 1)
 
 
 def create_object_with_call_ai(item_type, list_names, story, prompt_type, retries=3):
     if retries <= 0:
-        print("Error creating object with create_object_with_call_ai(), fail " + str(retries) + " times.\n")
+        print("Error creating object with create_object_with_call_ai()\n")
         return None
 
     prompt = generate_prompt_items_with_list(item_type, list_names, story, prompt_type)
@@ -215,9 +204,6 @@ def create_object_with_call_ai(item_type, list_names, story, prompt_type, retrie
         items_quality = extract_object_from_list(result)
         if items_quality and len(items_quality) > 0:
             return items_quality
-        else:
-            # Retry with the next prompt type
-            return create_object_with_call_ai(item_type, list_names, story, prompt_type + 1, retries - 1)
-    else:
-        # Retry with the next prompt type
-        return create_object_with_call_ai(item_type, list_names, story, prompt_type + 1, retries - 1)
+
+    # Retry with the next prompt type
+    return create_object_with_call_ai(item_type, list_names, story, prompt_type + 1, retries - 1)
