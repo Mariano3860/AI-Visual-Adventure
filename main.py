@@ -13,8 +13,8 @@ if __name__ == '__main__':
         print('List length: ' + str(len(list_names)))
         characters = [Character(name) for name in list_names]
 
-        max_attrib = 2
         item_type = "adjective"
+        max_attrib = 2
         object_names_adjective = create_object_with_call_ai(item_type, list_names, story, 1, max_attrib)
         if object_names_adjective and len(object_names_adjective) > 0:
             print(object_names_adjective)
@@ -28,6 +28,20 @@ if __name__ == '__main__':
                     if qualities:
                         print(f"{character.get_name()}: {', '.join(qualities)}")
 
+        item_type = "actions"
+        max_attrib = 1
+        object_names_actions = create_object_with_call_ai(item_type, list_names, story, 1, max_attrib)
+        if object_names_actions and len(object_names_actions) > 0:
+            print(object_names_actions)
+            for character in characters:
+                if character.get_name() in object_names_actions:
+                    character.add_action(object_names_actions[character.get_name()])
+            if len(characters[1].get_actions()) > 0:
+                character = characters[1]
+                if character.get_name() in object_names_actions:
+                    actions = object_names_actions[character.get_name()]
+                    if actions:
+                        print(f"{character.get_name()}: {', '.join(actions)}")
 
 # OnError: repeat 3 times, if not, change promp, if not, message error
 # Ask for a list of names, filter uniques, ask for more names if needed given the already generated list.
