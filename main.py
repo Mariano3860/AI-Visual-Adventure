@@ -21,7 +21,11 @@ if __name__ == '__main__':
                 if character.get_name() in object_names_adjective:
                     character.add_appearance_modifier(object_names_adjective[character.get_name()])
             if len(characters[1].get_appearance_modifiers()) > 0:
-                print(characters[1].get_name() + ' ' + characters[1].get_appearance_modifiers()[0])
+                character = characters[1]
+                if character.get_name() in object_names_adjective:
+                    qualities = object_names_adjective[character.get_name()]
+                    if qualities:
+                        print(f"{character.get_name()}: {', '.join(qualities)}")
 
 # OnError: repeat 3 times, if not, change promp, if not, message error
 # Ask for a list of names, filter uniques, ask for more names if needed given the already generated list.

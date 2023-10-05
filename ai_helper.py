@@ -8,6 +8,7 @@ URI = f'http://{HOST}/api/v1/generate'
 
 
 def call_ai(prompt):
+    # https://huggingface.co/docs/transformers/main_classes/text_generation
     request = {
         'prompt': prompt,
         # 'max_length': 2000,
@@ -173,9 +174,16 @@ def extract_object_from_list(input_list):
 
         first_quality = parts[0].strip()
         second_quality = parts[1].strip()
-        items_quality[first_quality] = second_quality
+
+        # Check if the second quality contains multiple qualities separated by commas
+        if ',' in second_quality:
+            qualities_list = [qual.strip() for qual in second_quality.split(",")]
+            items_quality[first_quality] = qualities_list
+        else:
+            items_quality[first_quality] = [second_quality]
 
     return items_quality
+
 
 
 def create_list_with_call_ai(item_type, max_items, story, prompt_type, retries=3):
@@ -207,6 +215,9 @@ def create_object_with_call_ai(item_type, list_names, story, prompt_type, retrie
         items_quality = extract_object_from_list(result)
         if items_quality and len(items_quality) > 0:
             return items_quality
+        else:
+            # Retry with the next prompt type
+            return create_object_with_call_ai(item_type, list_names, story, prompt_type + 1, retries - 1)
     else:
         # Retry with the next prompt type
         return create_object_with_call_ai(item_type, list_names, story, prompt_type + 1, retries - 1)
