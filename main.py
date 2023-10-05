@@ -1,24 +1,33 @@
+from Character import Character
 from generation import create_characters, create_background
-from ai_helper import callAI, extract_list, generate_prompt
+from ai_helper import call_ai, extract_list, generate_prompt_items, generate_prompt_items_with_list, \
+    create_object_from_list, create_list_with_call_ai
 
 if __name__ == '__main__':
+    characters = []
     story = "juego de tronos"
     max_items = 20
     item_type = "names"
-    prompt = generate_prompt(item_type, max_items, story)
-    result = callAI(prompt)
+    list_names = create_list_with_call_ai(item_type, max_items, story, 1)
 
-    if result:
-        print("result: " + result)
-        extracted_result = extract_list(result, max_items)
-        if extracted_result and len(extracted_result) > 0:
-            print(extracted_result)
-            print('List length: ' + str(len(extracted_result)))
-        else:
-            print("Error extracting list: " + result)
-            print(extracted_result)
-    else:
-        print("AI request failed.")
+    if len(list_names) > 0:
+        print(list_names)
+        print('List length: ' + str(len(list_names)))
+        characters = [Character(name) for name in list_names]
+        item_type = "adjective"
+
+        prompt2 = generate_prompt_items_with_list(item_type, list_names, story, 2)
+        print("promp2: " + prompt2)
+        result2 = call_ai(prompt2)
+        print(result2)
+        object_result = create_object_from_list(result2)
+        print(object_result)
+
+        for character in characters:
+            if character.get_name() in object_result:
+                character.add_appearance_modifier(object_result[character.get_name()])
+        if len(characters[1].get_appearance_modifiers()) > 0:
+            print(characters[1].get_name() + ' ' + characters[1].get_appearance_modifiers()[0])
 
 # OnError: repeat 3 times, if not, change promp, if not, message error
 # Ask for a list of names, filter uniques, ask for more names if needed given the already generated list.

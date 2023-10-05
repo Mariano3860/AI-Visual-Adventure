@@ -7,7 +7,7 @@ HOST = 'localhost:5000'
 URI = f'http://{HOST}/api/v1/generate'
 
 
-def callAI(prompt):
+def call_ai(prompt):
     request = {
         'prompt': prompt,
         # 'max_length': 2000,
@@ -54,10 +54,62 @@ def callAI(prompt):
         return None
 
 
+def generate_prompt_items(item_type, max_items, story, num_type):
+    if num_type == 1:
+        prompt = f"One answer for one instruction.\n" \
+                 f"Instruction: Write only a list with exactly {max_items} {item_type}. The list must have this format: " \
+                 f"'[{item_type}1,{item_type}2,{item_type}3,...,{item_type}{max_items}]'\n" \
+                 f"The {item_type} should be based on this story: {story}.\n" \
+                 f"Answer:"
+    elif num_type == 2:
+        prompt = f"One answer for one instruction.\n" \
+                 f"Instruction: Construct a list that consists of precisely {max_items} {item_type}. The required format for the list is: " \
+                 f"'[{item_type}1, {item_type}2, {item_type}3, ..., {item_type}{max_items}]'\n" \
+                 f"The {item_type} you include should be influenced by the narrative of {story}.\n" \
+                 f"Answer:"
+    else:
+        prompt = f"One answer for one instruction.\n" \
+                 f"Instruction: Compose a list comprising {max_items} {item_type} exactly. The list format must adhere to this pattern: " \
+                 f"'[{item_type}1, {item_type}2, {item_type}3, ..., {item_type}{max_items}]'\n" \
+                 f"The {item_type} you include should be related to the story of {story}.\n" \
+                 f"Answer:"
+    return prompt
+
+
+def generate_prompt_items_with_list(item_type, item_list, story, num_type):
+    if num_type == 1:
+        prompt = f"One answer for one instruction.\n" \
+                 f"Instruction: Create a list containing exactly {len(item_list)} {item_type} related to the story: '{story}'. " \
+                 f"For each item in the list, use the format: '[{item_list[0]}: {item_type}, {item_list[1]}: {item_type},..., {item_list[len(item_list) - 1]}: {item_type}]'. " \
+                 f"Ensure that each {item_type} is inspired by the story.\n" \
+                 f"Reference list: {item_list}\n" \
+                 f"Answer:"
+    elif num_type == 2:
+        prompt = f"One answer for one instruction.\n" \
+                 f"Instruction: Assemble a list comprising exactly {len(item_list)} {item_type}, each linked to the story of {story}. " \
+                 f"For each item in the list, adhere to the format: '[{item_list[0]}: {item_type}, {item_list[1]}: {item_type}, ..., {item_list[len(item_list) - 1]}: {item_type}]'. " \
+                 f"Ensure that each {item_type} is inspired by the story.\n" \
+                 f"Reference list: {item_list}\n" \
+                 f"Answer:"
+    else:
+        prompt = f"One answer for one instruction.\n" \
+                 f"Instruction: Assemble a list comprising exactly {len(item_list)} {item_type}, each linked to the story of {story}. " \
+                 f"For each item in the list, adhere to the format: '[{item_list[0]}: {item_type}, {item_list[1]}: {item_type}, ..., {item_list[len(item_list) - 1]}: {item_type}]'. " \
+                 f"Ensure that each {item_type} is inspired by the story.\n" \
+                 f"Reference list: {item_list}\n" \
+                 f"Answer:"
+    return prompt
+
+
 def extract_list(input_text, max_items):
     # Check if "[" and "]" are present in the input text
     if "[" not in input_text or "]" not in input_text:
-        return "Error: The list format is incorrect."
+        print("Error: The list format is incorrect.")
+        return None
+
+    # Replace unwanted characters
+    input_text = input_text.replace("[and ", "[")
+    input_text = input_text.replace(".", "")
 
     # Define a regular expression pattern to find list-like structures
     pattern = r'[\[\(](.*?)[\]\)]'
@@ -93,10 +145,48 @@ def extract_list(input_text, max_items):
     return None
 
 
-def generate_prompt(item_type, max_items, story):
-    prompt = f"One answer for one instruction.\n" \
-             f"Instruction: Write only a list with exactly {max_items} {item_type}. The list must have this format: " \
-             f"'[{item_type}1,{item_type}2,{item_type}3,...,{item_type}{max_items}]'\n" \
-             f"The {item_type} should be based on this story: {story}.\n" \
-             f"Answer:"
-    return prompt
+def create_object_from_list(_list):
+    items_quality = {}
+
+    # Replace unwanted characters
+    _list = _list.replace(".", "")
+    _list = _list.replace("[", "")
+    _list = _list.replace("]", "")
+    _list = _list.replace("/", "")
+    _list = _list.replace("\\", "")
+
+    _list = _list.split(', ')
+
+    for item in _list:
+        if not item:
+            continue  # Skip empty strings
+        parts = item.split(':', 1)  # Split only on the first colon
+        if len(parts) == 2:
+            first_quality = parts[0].strip()
+            second_quality = parts[1].strip()
+            items_quality[first_quality] = second_quality
+
+    return items_quality
+
+
+def create_list_with_call_ai(item_type, max_items, story, prompt_type, retries=3):
+    if retries <= 0:
+        print("Error creating list with ai, fail " + str(retries) + " times.\n")
+        return None
+
+    prompt = generate_prompt_items(item_type, max_items, story, prompt_type)
+    result = call_ai(prompt)
+
+    if result:
+        extracted_result = extract_list(result, max_items)
+
+        if extracted_result:
+            return extracted_result
+        else:
+            # Retry with the next prompt type
+            print("Error creating list on " + str(retries) + " try.\n")
+            return create_list_with_call_ai(item_type, max_items, story, prompt_type + 1, retries - 1)
+    else:
+        return None
+
+
