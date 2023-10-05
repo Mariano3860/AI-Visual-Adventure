@@ -1,9 +1,9 @@
 from Character import Character
-from ai_helper import create_list_with_call_ai, create_object_with_call_ai, extract_object_from_list
+from ai_helper import create_list_with_call_ai, create_object_with_call_ai
 
 if __name__ == '__main__':
     characters = []
-    story = "juego de tronos"
+    story = "Game of thrones"
     max_items = 30
     item_type = "names"
     list_names = create_list_with_call_ai(item_type, max_items, story, 1)
@@ -13,8 +13,9 @@ if __name__ == '__main__':
         print('List length: ' + str(len(list_names)))
         characters = [Character(name) for name in list_names]
 
+        max_attrib = 2
         item_type = "adjective"
-        object_names_adjective = create_object_with_call_ai(item_type, list_names, story, 1)
+        object_names_adjective = create_object_with_call_ai(item_type, list_names, story, 1, max_attrib)
         if object_names_adjective and len(object_names_adjective) > 0:
             print(object_names_adjective)
             for character in characters:
