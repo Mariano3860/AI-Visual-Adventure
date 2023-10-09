@@ -23,15 +23,21 @@ class Character:
 
     # Add an action to the character
     def add_action(self, action):
-        self._actions.append(action)
+        if isinstance(action, list):
+            self._appearance_modifiers.extend(action)
+        else:
+            self._appearance_modifiers.append(action)
 
     # Getter for appearance modifiers
     def get_appearance_modifiers(self):
         return self._appearance_modifiers
 
-    # Add an appearance modifier to the character
+    # Add an appearance modifier to the character (adjectives)
     def add_appearance_modifier(self, modifier):
-        self._appearance_modifiers.append(modifier)
+        if isinstance(modifier, list):
+            self._appearance_modifiers.extend(modifier)
+        else:
+            self._appearance_modifiers.append(modifier)
 
     # Getter for background description
     def get_background_description(self):
@@ -60,3 +66,10 @@ class Character:
     # Setter for image
     def set_image(self, image):
         self._image = image
+
+    def get_description(self):
+        name = self.get_name()
+        appearance_modifiers = ", ".join(self.get_appearance_modifiers()) if self.get_appearance_modifiers() else ""
+        actions = ", ".join(self.get_actions()) if self.get_actions() else ""
+        description = f"{name}{appearance_modifiers}{actions}"
+        return description

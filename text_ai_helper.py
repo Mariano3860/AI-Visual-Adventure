@@ -120,7 +120,7 @@ def extract_list(input_text, max_items):
 def extract_object_from_list(input_list, max_attributes):
     try:
         input_list = input_list.strip("[").strip("]").strip("\'").strip("\"").strip("{").strip("}").replace("  ", " ") \
-            .replace(" ;", ";").replace("; ", ";")
+            .replace(" ;", ";").replace("; ", ";").strip(".")
         pairs = input_list.split(';')
         if not pairs or len(pairs) < 1:
             raise ValueError("Incorrect format of input object validate_and_parse_list(): " + input_list)
@@ -129,13 +129,15 @@ def extract_object_from_list(input_list, max_attributes):
         for pair in pairs:
             # Split each pair by a colon to separate name and attributes
             name, attributes_str = pair.split(':')
+            # Remove leading and trailing spaces from the name
+            name = name.strip()
             # Split the attributes by commas and create a list
             attributes = attributes_str.split(',')
             # Check if max_attributes is specified and limit the number of attributes
             if max_attributes is not None:
                 attributes = attributes[:max_attributes]
             # Remove attributes with more than 3 words
-            attributes = [attr for attr in attributes if len(attr.split()) <= 3]
+            attributes = [attr for attr in attributes if len(attr.split()) <= 4]
             # Add the name and attributes to the result dictionary
             extracted_object[name] = attributes
         return extracted_object
