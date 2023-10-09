@@ -71,5 +71,14 @@ class Character:
         name = self.get_name()
         appearance_modifiers = ", ".join(self.get_appearance_modifiers()) if self.get_appearance_modifiers() else ""
         actions = ", ".join(self.get_actions()) if self.get_actions() else ""
-        description = f"{name}{appearance_modifiers}{actions}"
+        # Check if appearance_modifiers and actions are not empty
+        if appearance_modifiers and actions:
+            description = f"{name}, {appearance_modifiers}, {actions}"
+        elif appearance_modifiers:
+            description = f"{name}, {appearance_modifiers}"
+        elif actions:
+            description = f"{name}, {actions}"
+        else:
+            description = name
         return description
+

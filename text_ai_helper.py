@@ -105,7 +105,7 @@ def generate_prompt_items_with_list(item_type, item_list, story, max_attributes,
 
 def extract_list(input_text, max_items):
     input_text = input_text.strip("[").strip("]").strip("\'").strip("\"").strip("{").strip("}").replace("  ", " ") \
-        .replace(" ;", ";").replace("; ", ";")
+        .replace(" ;", ";").replace("; ", ";").strip()
     extracted_list = input_text.split(';')
     if not extracted_list or len(extracted_list) <= 1:
         print("Incorrect format of input object validate_and_parse_list(): " + input_text)
@@ -120,7 +120,7 @@ def extract_list(input_text, max_items):
 def extract_object_from_list(input_list, max_attributes):
     try:
         input_list = input_list.strip("[").strip("]").strip("\'").strip("\"").strip("{").strip("}").replace("  ", " ") \
-            .replace(" ;", ";").replace("; ", ";").strip(".")
+            .replace(" ;", ";").replace("; ", ";").strip(".").strip()
         pairs = input_list.split(';')
         if not pairs or len(pairs) < 1:
             raise ValueError("Incorrect format of input object validate_and_parse_list(): " + input_list)
@@ -129,8 +129,6 @@ def extract_object_from_list(input_list, max_attributes):
         for pair in pairs:
             # Split each pair by a colon to separate name and attributes
             name, attributes_str = pair.split(':')
-            # Remove leading and trailing spaces from the name
-            name = name.strip()
             # Split the attributes by commas and create a list
             attributes = attributes_str.split(',')
             # Check if max_attributes is specified and limit the number of attributes
