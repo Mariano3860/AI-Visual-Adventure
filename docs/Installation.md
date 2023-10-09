@@ -1,7 +1,13 @@
-# General Instalation
+# General Installation
 
-### Install torch with cuda:
+## Needed
+### Need to install torch with cuda is Nvidia:
+Install torch with cuda:
 - pip3 install torch==2.0.1+cu118 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118 --upgrade --force-reinstall
+### Need to install and run Text Generation webui API:
+- https://github.com/oobabooga/text-generation-webui
+
+## Optional downloads:
 ### Stable-diffusion webui with API:
 - https://github.com/AUTOMATIC1111/stable-diffusion-webui
 ### Base IMG model:
@@ -9,6 +15,4 @@
 ### Loras:
 - Pixel-art-xl: https://huggingface.co/nerijs/pixel-art-xl
 - 256x256: https://huggingface.co/justinpinkney/miniSD
-### Text Generation webui
-- https://github.com/oobabooga/text-generation-webui
 

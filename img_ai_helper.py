@@ -4,11 +4,11 @@ from diffusers import DiffusionPipeline
 from PIL import Image
 from huggingface_hub import login
 
+# Read token to access marian3860 Huggingface
 access_token= "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"
 login(token=access_token)
 
-base_model_id = "marian3860/miniSD"
-# base_model_id = "stabilityai/stable-diffusion-xl-base-1.0"
+base_model_id = "marian3860/miniSD"  # If pixel-art-xl lora, need base-model: "stabilityai/stable-diffusion-xl-base-1.0"
 pipe = DiffusionPipeline.from_pretrained(
     base_model_id,
     variant="fp16",
@@ -19,7 +19,7 @@ pipe.enable_xformers_memory_efficient_attention()
 pipe.enable_attention_slicing()
 
 prompt = "harry potter, full body, game character, 100% white background, pixelart"
-n_steps = 50
+n_steps = 40
 negative_prompt = "text, wrong, watermark"
 num_samples = 1
 height = 512
