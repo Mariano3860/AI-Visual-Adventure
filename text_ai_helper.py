@@ -1,6 +1,5 @@
-# ai_helper.py
+# text_ai_helper.py
 import requests
-import re
 
 # For local streaming, the websockets are hosted without ssl - http://
 HOST = 'localhost:5000'
