@@ -1,5 +1,6 @@
 # generation.py
 from Character import Character
+from img_ai_helper import generate_character_image
 from text_ai_helper import create_list_with_call_ai, create_object_with_call_ai
 
 
@@ -12,6 +13,7 @@ def create_characters(story, max_items):
         characters = [Character(name) for name in list_names]
         characters = create_appearance_modifiers(characters, story)
         characters = create_actions(characters, story)
+        characters = create_images(characters)
     return characters
 
 
@@ -36,4 +38,12 @@ def create_actions(characters, story):
             name = character.get_name()
             if name in object_names_actions:
                 character.add_action(object_names_actions[name])
+    return characters
+
+
+def create_images(characters):
+    for character in characters:
+        image = generate_character_image(character.get_description())
+        if image:
+            character.set_image(image)
     return characters
