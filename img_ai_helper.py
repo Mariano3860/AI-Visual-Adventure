@@ -64,7 +64,7 @@ def generate_character_image(character_info):
 
 
 def generate_bg_image(story, width=1024, height=1024):
-    prompt = f"aerial view background with no people, {story}"
+    prompt = f"Wide panoramic view with no people, {story}"
     n_steps = 20
     negative_prompt = "text, wrong, watermark, fog"
     num_samples = 1
@@ -84,7 +84,7 @@ def generate_bg_image(story, width=1024, height=1024):
         generator=generator,
     ).images[0]
     prompt = sanitize_filename(prompt.strip())
-    image.save(f"./Images/{prompt}-{seed}.png")
+    image.save(f"./Images/{story}-{seed}.png")
     return image
 
 

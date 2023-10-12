@@ -50,8 +50,8 @@ def create_images(characters):
     return characters
 
 
-def create_background(story, width, height):
-    bg_description = create_bg_description(story, 500)
+def create_background(story, width, height, story_length_description=300):
+    bg_description = create_bg_description(story, story_length_description)
     if bg_description:
         bg = Background(bg_description, width, height)
     else:
