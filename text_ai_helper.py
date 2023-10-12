@@ -1,5 +1,6 @@
 # text_ai_helper.py
 from call_txt_ai import call_txt_ai_local_AutoGPTQ
+import re
 
 
 def generate_prompt_items(item_type, max_items, story, num_type):
@@ -49,9 +50,32 @@ def generate_prompt_items_with_list(item_type, item_list, story, max_attributes,
     return prompt
 
 
+def generate_prompt_bg(story, length, num_type):
+    if num_type == 1:
+        prompt = f"One answer for one instruction.\n" \
+                 f"Instruction: Create a description of a background related to the story: {story}.\n" \
+                 f"Start with a description of the scene, provide context, use vivid language, " \
+                 f"specify the mood and atmosphere, include any relevant elements" \
+                 f"Use less than {length} characters.\n" \
+                 f"Answer:"
+    elif num_type == 2:
+        prompt = f"One answer for one instruction.\n" \
+                 f"Instruction: Create a description of a background related to the story: {story}.\n" \
+                 f"Use less than {length} characters.\n" \
+                 f"Answer:"
+    else:
+        prompt = f"One answer for one instruction.\n" \
+                 f"Instruction: Create a description of a background related to the story: {story}.\n" \
+                 f"Describe in details the ground, the sky, the landscape.\n" \
+                 f"Use less than {length} characters.\n" \
+                 f"Answer:"
+    return prompt
+
+
 def extract_list(input_text, max_items):
     input_text = input_text.strip("[").strip("]").strip("\'").strip("\"").strip("{").strip("}").replace("  ", " ") \
-        .replace(" ;", ";").replace("; ", ";").strip(":").strip("\\n").strip().replace("Answer: ",";").replace("Answer:",";")
+        .replace(" ;", ";").replace("; ", ";").strip(":").strip("\\n").strip().replace("Answer: ", ";").replace(
+        "Answer:", ";")
     extracted_list = input_text.split(';')
     if not extracted_list or len(extracted_list) <= 1:
         print("Incorrect format of input object validate_and_parse_list(): " + input_text)
@@ -119,3 +143,29 @@ def create_object_with_call_ai(item_type, list_names, story, prompt_type, max_at
             return items_quality
     # Retry with the next prompt type
     return create_object_with_call_ai(item_type, list_names, story, prompt_type + 1, retries - 1)
+
+
+def validate_description(description, max_length=500):
+    # Remove special characters and extra spaces
+    description = re.sub(r'[^\w\s]', '', description)
+    description = ' '.join(description.split())
+    if len(description) > max_length * 1.1:
+        print("Description is too long, please provide a shorter description.")
+        return None
+    elif len(description) < 5:
+        print("Description is empty, please provide a valid description.")
+        return None
+    return description
+
+
+def generate_bg_description(story, length, prompt_type, retries=3):
+    if retries <= 0:
+        print("Error creating background description\n")
+        return None
+    prompt = generate_prompt_bg(story, length, prompt_type)
+    result = call_txt_ai_local_AutoGPTQ(prompt)
+    if result:
+        bg_description = validate_description(result, length)
+        if bg_description:
+            return bg_description
+    return generate_bg_description(story, length, prompt_type + 1, retries - 1)

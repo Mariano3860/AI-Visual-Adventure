@@ -1,7 +1,8 @@
 # generation.py
+from Background import Background
 from Character import Character
-from img_ai_helper import generate_character_image
-from text_ai_helper import create_list_with_call_ai, create_object_with_call_ai
+from img_ai_helper import generate_character_image, generate_bg_image
+from text_ai_helper import create_list_with_call_ai, create_object_with_call_ai, generate_bg_description
 
 
 def create_characters(story, max_items):
@@ -47,3 +48,30 @@ def create_images(characters):
         if image:
             character.set_image(image)
     return characters
+
+
+def create_background(story, width, height):
+    bg_description = create_bg_description(story, 500)
+    if bg_description:
+        bg = Background(bg_description, width, height)
+    else:
+        print("Background description couldn't be created")
+        return None
+    bg_img = create_bg_img(bg)
+    if bg_img:
+        bg.set_image(bg_img)
+    return bg
+
+
+def create_bg_description(story, length):
+    bg_description = generate_bg_description(story, length, 1)
+    if bg_description:
+        return bg_description
+    return None
+
+
+def create_bg_img(bg):
+    bg_img = generate_bg_image(bg.get_description(), bg.get_max_width(), bg.get_max_height())
+    if bg_img:
+        return bg_img
+    return None
