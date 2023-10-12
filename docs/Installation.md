@@ -1,7 +1,7 @@
 # General Installation
 
 ## Needed
-### Need to install torch with cuda is Nvidia:
+### Need to install torch with cuda if Nvidia:
 Install torch with cuda:
 - pip3 install torch==2.0.1+cu118 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118 --upgrade --force-reinstall
 ### Need to install and run Text Generation webui API:

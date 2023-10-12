@@ -20,6 +20,9 @@
      - Try to generate it from textToImg
          - If not possible, use imgToImg and use 5-10 templates depending on action
      - Use or create a test to check if character has face, full-body, if not, repeat process.
+       - Use a model imgToTxt? Search for solution with less resources
+     - Erase background
+       - https://www.geeksforgeeks.org/how-to-remove-the-background-from-an-image-using-python/
 7. Generate a background with the background class descriptions and the maxXY
      - Validate background somehow, if not repeat process
 8. Paste each character on top of the image using XY position.
