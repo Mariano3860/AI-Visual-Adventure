@@ -125,7 +125,7 @@ def create_list_with_call_ai(item_type, max_items, story, prompt_type, retries=3
     result = call_txt_ai_local_AutoGPTQ(prompt)
     if result:
         extracted_result = extract_list(result, max_items)
-        if extracted_result and max_items * 0.8 < len(extracted_result) < max_items * 1.2:
+        if extracted_result and max_items * 0.3 < len(extracted_result) < max_items * 1.3:
             return extracted_result
     # Retry with the next prompt type
     return create_list_with_call_ai(item_type, max_items, story, prompt_type + 1, retries - 1)
