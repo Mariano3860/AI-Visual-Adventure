@@ -60,6 +60,7 @@ def generate_character_image(character_info):
     ).images[0]
     prompt = sanitize_filename(prompt.strip())
     image.save(f"./Images/{prompt}-{seed}.png")
+    torch.cuda.empty_cache()
     return image
 
 
@@ -85,6 +86,7 @@ def generate_bg_image(story, width=1024, height=1024):
     ).images[0]
     prompt = sanitize_filename(prompt.strip())
     image.save(f"./Images/{story}-{seed}.png")
+    torch.cuda.empty_cache()
     return image
 
 

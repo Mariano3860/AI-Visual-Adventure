@@ -1,16 +1,29 @@
 # call_txt_ai.py
+import torch
 import requests
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
+loaded_model = None
+
+def load_txt_ai_model(model_name_or_path):
+    global loaded_model
+    if loaded_model is None:
+        loaded_model = AutoModelForCausalLM.from_pretrained(model_name_or_path,
+                                                         device_map="auto",
+                                                         trust_remote_code=True,
+                                                         revision="main")
+    return loaded_model
 
 def call_txt_ai_local_AutoGPTQ(prompt):
+    # Load the model if it's not already loaded
     model_name_or_path = "TheBloke/CodeLlama-7B-Instruct-GPTQ"
-    model = AutoModelForCausalLM.from_pretrained(model_name_or_path,
-                                                 device_map="auto",
-                                                 trust_remote_code=True,
-                                                 revision="main")
+    model = load_txt_ai_model(model_name_or_path)
+
     tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=True)
     input_ids = tokenizer(prompt, return_tensors='pt').input_ids.cuda()
+    generator = torch.Generator(device='cuda')
+    seed = generator.seed()
+    torch.manual_seed(seed)
     output = model.generate(
         inputs=input_ids,
         do_sample=True,
@@ -26,6 +39,7 @@ def call_txt_ai_local_AutoGPTQ(prompt):
     # Manually remove the prompt from the generated text
     if generated_text.startswith(prompt):
         generated_text = generated_text[len(prompt):].strip()
+    torch.cuda.empty_cache()
     return generated_text
 
 
