@@ -1,2 +1,2 @@
 # AI-Visual-Adventure
-Inteligencia artificial y generación de imágenes en python para crear escenarios visuales únicos.
+Craft Exclusive Visual Scenarios for Dynamic Interaction with the power of AI.
