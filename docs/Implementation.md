@@ -19,16 +19,19 @@
    - Generate the image, create a right prompt and right parameters needed
      - Try to generate it from textToImg
          - If not possible, use imgToImg and use 5-10 templates depending on action
+     - Create a fine-tuning model that creates only small characters.
      - Use or create a test to check if character has face, full-body, if not, repeat process.
        - Use a model imgToTxt? Search for solution with less resources
      - Erase background
        - https://www.geeksforgeeks.org/how-to-remove-the-background-from-an-image-using-python/
 7. Generate a background with the background class descriptions and the maxXY
+     - Create a fine-tuning model to generate only useful backgrounds without characters.
      - Validate background somehow, if not repeat process
 8. Paste each character on top of the image using XY position.
 9. Optional: Create also classes of objects and buildings, generate images and paste them in background.
 10. Generate a new polished image with the sketched image.
      - Can ask in that generation for interaction between objects.
+     - Create a fine-tuning model to generate images desired from imgToImg
      - Ask an IA for validation of the image created, use info inside classes to check presence, position, quality.
      - If validation is not passed, then regenerate image.
      - Generate percentages of compliance/efficiency, in the future use them to feedback the AIs.
